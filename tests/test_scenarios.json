@@ -1,0 +1,261 @@
+[
+  {
+    "id": "S01",
+    "name": "Internal report drafting with controlled use",
+    "description_ko": "사내 자체 모델을 이용해 내부 보고서 초안을 작성한다. 개인정보나 민감정보는 입력하지 않으며, 모든 결과는 담당자가 검토한 뒤 사용한다. 입력과 출력 로그를 보관한다.",
+    "expected_features": {
+      "customer_facing": false,
+      "handles_pii": false,
+      "handles_sensitive_data": false,
+      "human_review": true,
+      "autonomous_output": false,
+      "external_vendor": false,
+      "vendor_contract_clear": "unknown",
+      "logging_enabled": true,
+      "safety_critical_use": false,
+      "human_decision_support": false,
+      "media_generation": false,
+      "copyright_content_use": false
+    },
+    "expected_risks": [],
+    "expected_tier": "Tier 1",
+    "expected_label": "Insurable",
+    "rationale_ko": "외부 고객 노출, 개인정보 처리, 자율적 출력, 고위험 의사결정이 없고 Human Review와 Logging이 적용되어 있어 기본 인수 가능 사례로 설정한다."
+  },
+  {
+    "id": "S02",
+    "name": "Customer chatbot with human review",
+    "description_ko": "고객 문의에 답변하는 생성형 AI 챗봇을 운영한다. 개인정보는 입력하지 않으며, 답변은 상담원이 확인한 후 고객에게 전달한다. 모든 대화 로그를 저장한다.",
+    "expected_features": {
+      "customer_facing": true,
+      "handles_pii": false,
+      "handles_sensitive_data": false,
+      "human_review": true,
+      "autonomous_output": false,
+      "external_vendor": false,
+      "vendor_contract_clear": "unknown",
+      "logging_enabled": true,
+      "safety_critical_use": false,
+      "human_decision_support": false,
+      "media_generation": false,
+      "copyright_content_use": false
+    },
+    "expected_risks": [
+      "Hallucination / Misinformation"
+    ],
+    "expected_tier": "Tier 2",
+    "expected_label": "Conditionally Insurable",
+    "rationale_ko": "고객에게 AI 출력이 제공되므로 Hallucination 위험이 존재하지만 Human Review와 Logging이 적용되어 있어 조건부 인수 사례로 설정한다."
+  },
+  {
+    "id": "S03",
+    "name": "Customer service using PII and external LLM",
+    "description_ko": "외부 LLM API를 사용해 고객 문의를 요약하고 답변 초안을 생성한다. 고객 이름과 계약정보가 입력될 수 있으며, 외부 사업자와 데이터 처리 및 보안 관련 계약조건을 확인하였다. 상담원이 결과를 검토하고 로그도 저장한다.",
+    "expected_features": {
+      "customer_facing": true,
+      "handles_pii": true,
+      "handles_sensitive_data": false,
+      "human_review": true,
+      "autonomous_output": false,
+      "external_vendor": true,
+      "vendor_contract_clear": true,
+      "logging_enabled": true,
+      "safety_critical_use": false,
+      "human_decision_support": false,
+      "media_generation": false,
+      "copyright_content_use": false
+    },
+    "expected_risks": [
+      "Data Leakage / Privacy",
+      "Hallucination / Misinformation"
+    ],
+    "expected_tier": "Tier 2",
+    "expected_label": "Conditionally Insurable",
+    "rationale_ko": "개인정보와 외부 LLM 사용으로 Privacy 위험이 존재하고 고객 대상 서비스라 Hallucination 위험도 존재하지만, 계약조건 확인·Human Review·Logging이 적용되어 있어 조건부 인수로 설정한다."
+  },
+  {
+    "id": "S04",
+    "name": "External vendor with unclear contract terms",
+    "description_ko": "외부 생성형 AI 서비스를 이용해 사내 문서를 요약한다. 고객에게 직접 출력되지는 않지만 외부 사업자의 데이터 저장 및 재사용 정책과 계약상 책임범위를 아직 확인하지 못했다. 결과는 직원이 검토하고 로그를 저장한다.",
+    "expected_features": {
+      "customer_facing": false,
+      "handles_pii": false,
+      "handles_sensitive_data": false,
+      "human_review": true,
+      "autonomous_output": false,
+      "external_vendor": true,
+      "vendor_contract_clear": "unknown",
+      "logging_enabled": true,
+      "safety_critical_use": false,
+      "human_decision_support": false,
+      "media_generation": false,
+      "copyright_content_use": false
+    },
+    "expected_risks": [
+      "Data Leakage / Privacy"
+    ],
+    "expected_tier": "Tier 3",
+    "expected_label": "Technical Referral",
+    "rationale_ko": "외부 Vendor를 사용하지만 계약 및 데이터 처리조건이 불명확하므로 추가 확인이 필요한 Technical Referral 사례로 설정한다."
+  },
+  {
+    "id": "S05",
+    "name": "Autonomous customer chatbot without controls",
+    "description_ko": "생성형 AI가 고객 문의에 자동으로 답변하며 직원 검수 없이 결과를 즉시 고객에게 제공한다. 별도의 입력·출력 로그도 저장하지 않는다.",
+    "expected_features": {
+      "customer_facing": true,
+      "handles_pii": false,
+      "handles_sensitive_data": false,
+      "human_review": false,
+      "autonomous_output": true,
+      "external_vendor": false,
+      "vendor_contract_clear": "unknown",
+      "logging_enabled": false,
+      "safety_critical_use": false,
+      "human_decision_support": false,
+      "media_generation": false,
+      "copyright_content_use": false
+    },
+    "expected_risks": [
+      "Fraud / Deepfake",
+      "Hallucination / Misinformation",
+      "Bias / Discrimination"
+    ],
+    "expected_tier": "Tier 4",
+    "expected_label": "Deferred / Excluded",
+    "rationale_ko": "고객 대상 자동출력이 Human Review와 Logging 없이 사용되므로 현재 상태에서 즉시 인수하기 어려운 사례로 설정한다."
+  },
+  {
+    "id": "S06",
+    "name": "Sensitive health data without review or logs",
+    "description_ko": "생성형 AI를 이용해 고객의 건강정보를 요약한다. 결과는 직원의 추가 검토 없이 내부 업무에 바로 사용하며, 입력과 출력 로그를 별도로 저장하지 않는다.",
+    "expected_features": {
+      "customer_facing": false,
+      "handles_pii": true,
+      "handles_sensitive_data": true,
+      "human_review": false,
+      "autonomous_output": false,
+      "external_vendor": false,
+      "vendor_contract_clear": "unknown",
+      "logging_enabled": false,
+      "safety_critical_use": false,
+      "human_decision_support": false,
+      "media_generation": false,
+      "copyright_content_use": false
+    },
+    "expected_risks": [
+      "Data Leakage / Privacy"
+    ],
+    "expected_tier": "Tier 4",
+    "expected_label": "Deferred / Excluded",
+    "rationale_ko": "민감정보를 처리하면서 Human Review와 Logging이 모두 없어 통제수준이 부족한 고위험 사례로 설정한다."
+  },
+  {
+    "id": "S07",
+    "name": "Safety-critical autonomous control",
+    "description_ko": "생성형 AI가 산업설비 이상상태를 판단하고 설비 제어명령을 자동으로 실행한다. 제어명령 전 사람의 승인을 거치지 않으며 시스템 로그는 저장한다.",
+    "expected_features": {
+      "customer_facing": false,
+      "handles_pii": false,
+      "handles_sensitive_data": false,
+      "human_review": false,
+      "autonomous_output": true,
+      "external_vendor": false,
+      "vendor_contract_clear": "unknown",
+      "logging_enabled": true,
+      "safety_critical_use": true,
+      "human_decision_support": false,
+      "media_generation": false,
+      "copyright_content_use": false
+    },
+    "expected_risks": [
+      "Physical Safety",
+      "Hallucination / Misinformation"
+    ],
+    "expected_tier": "Tier 4",
+    "expected_label": "Deferred / Excluded",
+    "rationale_ko": "물리적 안전에 영향을 주는 업무에서 Human Review 없이 자동 제어가 이루어지므로 Tier 4 사례로 설정한다."
+  },
+  {
+    "id": "S08",
+    "name": "AI-assisted hiring decision without human review",
+    "description_ko": "생성형 AI가 지원자의 자기소개서와 경력정보를 분석해 채용 적합 여부를 추천하며, 해당 추천 결과가 별도 검토 없이 채용 판단에 사용된다. 로그는 저장한다.",
+    "expected_features": {
+      "customer_facing": false,
+      "handles_pii": true,
+      "handles_sensitive_data": false,
+      "human_review": false,
+      "autonomous_output": false,
+      "external_vendor": false,
+      "vendor_contract_clear": "unknown",
+      "logging_enabled": true,
+      "safety_critical_use": false,
+      "human_decision_support": true,
+      "media_generation": false,
+      "copyright_content_use": false
+    },
+    "expected_risks": [
+      "Data Leakage / Privacy",
+      "Hallucination / Misinformation",
+      "Bias / Discrimination"
+    ],
+    "expected_tier": "Tier 3",
+    "expected_label": "Technical Referral",
+    "rationale_ko": "사람에게 중대한 영향을 미치는 채용 의사결정에 AI 결과가 사용되며 Human Review가 없어 추가 전문검토가 필요한 사례로 설정한다."
+  },
+  {
+    "id": "S09",
+    "name": "Marketing image generation with review",
+    "description_ko": "마케팅팀이 생성형 AI로 광고 이미지를 제작한다. 공개 전 직원이 모든 결과를 검토하며, 회사가 사용권한을 확보한 콘텐츠만 입력자료로 사용하고 생성 기록을 보관한다.",
+    "expected_features": {
+      "customer_facing": true,
+      "handles_pii": false,
+      "handles_sensitive_data": false,
+      "human_review": true,
+      "autonomous_output": false,
+      "external_vendor": false,
+      "vendor_contract_clear": "unknown",
+      "logging_enabled": true,
+      "safety_critical_use": false,
+      "human_decision_support": false,
+      "media_generation": true,
+      "copyright_content_use": false
+    },
+    "expected_risks": [
+      "Fraud / Deepfake",
+      "IP / Copyright",
+      "Hallucination / Misinformation"
+    ],
+    "expected_tier": "Tier 2",
+    "expected_label": "Conditionally Insurable",
+    "rationale_ko": "합성 미디어 생성과 외부 공개로 관련 리스크가 존재하지만 Human Review와 기록관리, 콘텐츠 권한 통제가 적용되어 있어 조건부 인수로 설정한다."
+  },
+  {
+    "id": "S10",
+    "name": "Copyright-sensitive content generation with unclear rights",
+    "description_ko": "외부 생성형 AI 서비스를 이용해 기사와 이미지 자료를 바탕으로 새로운 홍보 콘텐츠를 생성한다. 입력자료의 저작권 이용허락 여부와 외부 사업자의 계약상 책임범위는 명확히 확인되지 않았다. 결과는 담당자가 검토하고 로그는 저장한다.",
+    "expected_features": {
+      "customer_facing": true,
+      "handles_pii": false,
+      "handles_sensitive_data": false,
+      "human_review": true,
+      "autonomous_output": false,
+      "external_vendor": true,
+      "vendor_contract_clear": "unknown",
+      "logging_enabled": true,
+      "safety_critical_use": false,
+      "human_decision_support": false,
+      "media_generation": true,
+      "copyright_content_use": "unknown"
+    },
+    "expected_risks": [
+      "Fraud / Deepfake",
+      "Data Leakage / Privacy",
+      "IP / Copyright",
+      "Hallucination / Misinformation"
+    ],
+    "expected_tier": "Tier 3",
+    "expected_label": "Technical Referral",
+    "rationale_ko": "외부 Vendor 계약조건과 저작권 이용관계가 불명확하므로 추가 증빙과 기술·법률 검토가 필요한 사례로 설정한다."
+  }
+]
