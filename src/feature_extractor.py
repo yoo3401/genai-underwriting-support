@@ -87,11 +87,13 @@ Rules:
 7. human_review means a person reviews or approves AI output BEFORE the relevant business action or external delivery.
 8. autonomous_output means AI output is executed, delivered, or applied without a separate human approval step.
 9. external_vendor means an outside LLM/API/cloud AI provider is used.
-10. vendor_contract_clear is true only when the submission explicitly confirms relevant vendor contractual controls such as data processing, security, responsibility, reuse/training restrictions, or equivalent terms. Use false only when the submission explicitly states those terms are absent or inadequate; otherwise use "unknown".
-11. prohibited_use is true only when clearly illegal, intentionally deceptive, or explicitly prohibited use is actually being performed. A policy banning prohibited uses supports false, not true.
-12. copyright_content_use is true when copyrighted third-party content is actually used in a relevant way, false when the submission explicitly states that such use is not performed or is prohibited, otherwise "unknown".
-13. follow_up_questions should focus on missing or ambiguous facts that could change underwriting.
-14. Include every required feature exactly once.
+10. logging_enabled is true only when the company retains sufficient generative-AI interaction records to reconstruct or investigate AI activity, such as prompts, model outputs, routing/decision records, or equivalent AI transaction/audit logs. Authentication logs, administrator logs, access logs, infrastructure logs, or other generic system logs alone do NOT qualify as logging_enabled.
+11. human_decision_support is true only when AI output supports, recommends, ranks, scores, or otherwise influences consequential decisions about a person, such as hiring, lending, insurance underwriting or claims, healthcare, eligibility, education admissions, or similarly high-impact decisions. General employee assistance, customer-service assistance, drafting responses, knowledge search, or a human reviewing AI-generated customer responses do NOT qualify as human_decision_support.
+12. vendor_contract_clear is true only when the submission explicitly confirms relevant vendor contractual controls such as data processing, security, responsibility, reuse/training restrictions, or equivalent terms. Use false only when the submission explicitly states those terms are absent or inadequate; otherwise use "unknown".
+13. prohibited_use is true only when clearly illegal, intentionally deceptive, or explicitly prohibited use is actually being performed. A policy banning prohibited uses supports false, not true.
+14. copyright_content_use is true when copyrighted third-party content is actually used in a relevant way, false when the submission explicitly states that such use is not performed or is prohibited, otherwise "unknown".
+15. follow_up_questions should focus on missing or ambiguous facts that could change underwriting.
+16. Include every required feature exactly once.
 
 Required features:
 - customer_facing
