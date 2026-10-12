@@ -1,21 +1,16 @@
 """Rule-based risk classification and underwriting tier engine.
 
-This module implements the first MVP version of the deterministic rules
-defined in docs/feature_definition.md and docs/underwriting_tier_rules.md.
+The LLM analyzes company documents and extracts structured facts. This module
+then applies deterministic rules to those facts.
 
-The engine is intentionally simple:
-1. receive structured features extracted from a company AI-use description,
-2. activate one or more risk modules,
-3. apply prioritized underwriting rules,
-4. return an explainable result.
-
-This is a research prototype and is not an insurer's production underwriting
-or pricing model.
+If the document analysis contains a material contradiction, the prototype does
+not force a tier. It returns Manual Review so an underwriter can resolve the
+conflicting information first.
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 TIER_LABELS = {
@@ -44,7 +39,6 @@ def classify_risks(features: Dict[str, Any]) -> List[str]:
 
     risks: List[str] = []
 
-    # Fraud / Deepfake
     if (
         _is_true(features, "media_generation")
         or (
@@ -54,7 +48,6 @@ def classify_risks(features: Dict[str, Any]) -> List[str]:
     ):
         risks.append("Fraud / Deepfake")
 
-    # Data Leakage / Privacy
     if (
         _is_true(features, "handles_pii")
         or _is_true(features, "handles_sensitive_data")
@@ -65,11 +58,9 @@ def classify_risks(features: Dict[str, Any]) -> List[str]:
     ):
         risks.append("Data Leakage / Privacy")
 
-    # Physical Safety
     if _is_true(features, "safety_critical_use"):
         risks.append("Physical Safety")
 
-    # IP / Copyright
     if (
         _is_true(features, "copyright_content_use")
         or _is_true(features, "media_generation")
@@ -80,7 +71,6 @@ def classify_risks(features: Dict[str, Any]) -> List[str]:
     ):
         risks.append("IP / Copyright")
 
-    # Hallucination / Misinformation
     if (
         _is_true(features, "customer_facing")
         or _is_true(features, "autonomous_output")
@@ -88,7 +78,6 @@ def classify_risks(features: Dict[str, Any]) -> List[str]:
     ):
         risks.append("Hallucination / Misinformation")
 
-    # Bias / Discrimination
     if (
         _is_true(features, "human_decision_support")
         or (
@@ -106,20 +95,17 @@ def _relevant_unknown_count(features: Dict[str, Any]) -> int:
 
     count = 0
 
-    # Vendor contract status matters only when an external vendor is used.
     if _is_true(features, "external_vendor") and _is_unknown(
         features.get("vendor_contract_clear")
     ):
         count += 1
 
-    # Copyright status is relevant when media/content generation is used.
     if (
         _is_true(features, "media_generation")
         and _is_unknown(features.get("copyright_content_use"))
     ):
         count += 1
 
-    # Explicit null/unknown values in the core operational features.
     core_features = [
         "customer_facing",
         "handles_pii",
@@ -147,7 +133,6 @@ def determine_tier(
     reasons: List[str] = []
     recommendations: List[str] = []
 
-    # Tier 5: prohibited / abnormal use
     if _is_true(features, "prohibited_use"):
         matched_rules.append("T5-1")
         reasons.append("금지 또는 비정상적 활용 목적이 확인됨")
@@ -156,7 +141,6 @@ def determine_tier(
             "Tier 5", matched_rules, reasons, recommendations
         )
 
-    # Tier 4: currently difficult to insure
     if _is_true(features, "safety_critical_use") and _is_false(
         features, "human_review"
     ):
@@ -194,7 +178,6 @@ def determine_tier(
             "Tier 4", matched_rules, reasons, recommendations
         )
 
-    # Tier 3: technical referral
     if (
         _is_true(features, "external_vendor")
         and _is_unknown(features.get("vendor_contract_clear"))
@@ -234,7 +217,6 @@ def determine_tier(
             "Tier 3", matched_rules, reasons, recommendations
         )
 
-    # Tier 2: conditionally insurable
     if _is_true(features, "customer_facing") and _is_true(
         features, "human_review"
     ):
@@ -271,7 +253,6 @@ def determine_tier(
             "Tier 2", matched_rules, reasons, recommendations
         )
 
-    # Tier 1: default low-risk case
     matched_rules.append("T1-1")
     reasons.append("고위험 조건 또는 추가 검토 조건이 확인되지 않음")
     recommendations.append("현재 통제수준 유지 및 정기적 재평가")
@@ -296,10 +277,37 @@ def _tier_result(
     }
 
 
-def evaluate(features: Dict[str, Any]) -> Dict[str, Any]:
-    """Run full risk classification and underwriting evaluation."""
+def evaluate(
+    features: Dict[str, Any],
+    conflicts: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
+    """Run risk classification and underwriting evaluation."""
 
     risks = classify_risks(features)
+    conflicts = conflicts or []
+
+    if conflicts:
+        conflict_features = [
+            item.get("feature", "unknown")
+            for item in conflicts
+            if isinstance(item, dict)
+        ]
+        return {
+            "features": features,
+            "risks": risks,
+            "tier": "Manual Review",
+            "label": "Additional Verification Required",
+            "matched_rules": ["MR-1"],
+            "reasons": [
+                "기업 제출자료 간 핵심 정보가 서로 일치하지 않아 Tier를 확정하지 않음",
+                "충돌 Feature: " + ", ".join(conflict_features),
+            ],
+            "recommendations": [
+                "충돌하는 문서의 실제 운영기준을 기업 담당자에게 추가 확인",
+                "불일치가 해소된 뒤 Rule Engine을 다시 실행",
+            ],
+        }
+
     tier_result = determine_tier(features, risks)
 
     return {
